@@ -83,14 +83,9 @@ app.get("/png-report", (req, res) => {
     // Get the image data (base64)
     let imageb64 = chartRes.data;
     // Filename of the output
-    fs.writeFileSync(
-      "public/assets/bar.png",
-      imageb64,
-      "base64",
-      function (err) {
-        if (err) console.log(err);
-      }
-    );
+    fs.writeFileSync("public/bar.png", imageb64, "base64", function (err) {
+      if (err) console.log(err);
+    });
     console.log("PNG image!");
     chartExporter.killPool();
 
@@ -111,14 +106,9 @@ app.get("/jpg-report", (req, res) => {
     // Get the image data (base64)
     let imageb64 = chartRes.data;
     // Filename of the output
-    fs.writeFileSync(
-      "public/assets/bar.jpg",
-      imageb64,
-      "base64",
-      function (err) {
-        if (err) console.log(err);
-      }
-    );
+    fs.writeFileSync("public/bar.jpg", imageb64, "base64", function (err) {
+      if (err) console.log(err);
+    });
     console.log("JPG image!");
     chartExporter.killPool();
 
