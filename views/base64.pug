@@ -1,0 +1,20 @@
+extends layout
+
+block layout-content
+  div.View
+    h1.Banner HighChart Image Generate
+    div.Message
+      div.Title
+        h3 Base64
+      span.Details #{data}
+    div.NavButtons
+      a(href="/")
+        div.NavButton HOME
+      a(href="/png-report")
+        div.NavButton PNG Format
+      a(href="/jpg-report")
+        div.NavButton JPEG Format
+      a(href="/svg-report")
+        div.NavButton SVG Format
+      a.Disabled(href="/base64-report")
+        div.NavButton BASE64 Format
