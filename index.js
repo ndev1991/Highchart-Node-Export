@@ -2,6 +2,7 @@
  * Required External Modules
  */
 const express = require("express");
+const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
 const chartExporter = require("highcharts-export-server");
@@ -12,6 +13,10 @@ const chartExporter = require("highcharts-export-server");
 
 const app = express();
 const port = process.env.PORT || "8000";
+const corsOptions = {
+  origin: "http://localhost:3000",
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 
 const chartOptions = {
   chart: {
@@ -30,27 +35,40 @@ const chartOptions = {
   },
 };
 
-const getRandomOptions = () => {
+const getRandomSeries = () => {
+  return [
+    {
+      data: [
+        {
+          name: "a",
+          y: Math.floor(Math.random() * 100),
+        },
+        {
+          name: "b",
+          y: Math.floor(Math.random() * 100),
+        },
+        {
+          name: "c",
+          y: Math.floor(Math.random() * 100),
+        },
+      ],
+    },
+  ];
+};
+
+const getRandomOptions = (
+  type = "pie",
+  title = "HighChart",
+  series = getRandomSeries()
+) => {
   return {
-    ...chartOptions,
-    series: [
-      {
-        data: [
-          {
-            name: "a",
-            y: Math.floor(Math.random() * 100),
-          },
-          {
-            name: "b",
-            y: Math.floor(Math.random() * 100),
-          },
-          {
-            name: "c",
-            y: Math.floor(Math.random() * 100),
-          },
-        ],
-      },
-    ],
+    chart: {
+      type,
+    },
+    title: {
+      text: title,
+    },
+    series: series,
   };
 };
 
@@ -58,6 +76,9 @@ const getRandomOptions = () => {
  * App Configuration
  */
 
+app.use(cors(corsOptions));
+app.use(express.json()); // support json encoded bodies
+app.use(express.urlencoded({ extended: true })); // support encoded bodies
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 app.use(express.static(path.join(__dirname, "/")));
@@ -116,11 +137,12 @@ app.get("/jpg-report", (req, res) => {
   });
 });
 
-app.get("/base64-report", (req, res) => {
+app.post("/base64-report", (req, res) => {
+  const { data } = req.body;
   chartExporter.initPool();
   const chartDetails = {
-    type: "jpg",
-    options: getRandomOptions(),
+    type: "png",
+    options: data,
   };
   chartExporter.export(chartDetails, (err, chartRes) => {
     if (err) {
@@ -130,7 +152,9 @@ app.get("/base64-report", (req, res) => {
     let imageb64 = chartRes.data;
     chartExporter.killPool();
 
-    res.render("base64", { title: "Base64", data: imageb64 });
+    res.status(200).send({
+      data: imageb64,
+    });
   });
 });
 
